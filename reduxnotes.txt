@@ -1,0 +1,76 @@
+01 - Setting Up Our Webpack Environment.mp4
+    Need:
+        NodeJS
+        React Dev Tools
+        Redux Dev Tools
+        Terminal (iTerm2)
+        npm install
+    Download source repo and run npm i
+
+02 - App Layout + Component Setup.mp4
+    client folder contains app, starting in reduxtagram.js
+    Styles folder contains all styles in stylus
+    reduxtagram.js
+        import React from "react";
+
+        import { render } from "react-dom";
+
+        // Import css
+        import css from "./styles/style.styl";
+
+        render(<p>Hi</p>, document.getElementById("root"));
+    Create other components
+        main>photo grid, single
+
+03 - Creating our Single and PhotoGrid components.mp4
+
+
+04 - Setting up React Router.mp4
+
+
+05 - Creating our Redux Store.mp4
+
+
+06 - All About Redux Actions.mp4
+
+
+07 - All About Redux Reducers.mp4
+
+
+08 - Integrating our Store with React Router.mp4
+
+
+09 - Understanding The Reducer's Job and Dispatching Actions.mp4
+
+
+10 - Accessing Dispatch and State with Redux.mp4
+
+
+11 - Displaying Redux State inside our Components.mp4
+
+
+12 - Updating State with Reducers.mp4
+
+
+13 - Displaying the Single Photo Component.mp4
+
+
+14 - Displaying and Adding Comments.mp4
+
+
+15 - Updating Comment State in our Store.mp4
+
+
+16 - Redux Reducer Composition.mp4
+
+
+17 - Error Tracking and Insights with Sentry.mp4
+
+
+18 - Hot Reloading Redux Reducers with webpack.mp4
+
+
+19 - Learning Redux Dev Tools.mp4
+
+
+20 - Wrap Up and Next Steps.mp4
