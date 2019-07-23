@@ -4,8 +4,8 @@
         React Dev Tools
         Redux Dev Tools
         Terminal (iTerm2)
-        npm install
     Download source repo and run npm i
+    Start with `npm start`
 
 02 - App Layout + Component Setup.mp4
     client folder contains app, starting in reduxtagram.js
