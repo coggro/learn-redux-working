@@ -169,17 +169,64 @@
 07 - All About Redux Reducers.mp4
     Need to use reducers to actually update the state
     In browser, we can listen for events like click and hover
-    We create reducers to listen for our action events
+    We create reducers to listen for our action events - for every piece of state (posts, comments)
+    client/reducers/posts.js
+        function posts(state = [], action) {
+            console.log(state, action);
+            return state;
+        }
 
+        export default posts;
+    client/reducers/comments.js
+        function comments(state = [], action) {
+            console.log(state, action);
+            return state;
+        }
+
+        export default comments;
+    client/reducers/index.js
+        // this is the big daddy reducer
+
+        import { combineReducers } from "redux";
+        import { routerReducer } from "react-router-redux";
+
+        import posts from "./posts";
+        import comments from "./comments";
+
+        const rootReducer = combineReducers({ posts, comments, router: routerReducer });
+
+        export default rootReducer;
 
 08 - Integrating our Store with React Router.mp4
-
+    client/reduxtagram.js
+        ...
+        import { Provider } from 'react-redux'; // bindings allow us to use redux with react
+        import store, { history } from './store';
+        // This should allow you to see the state in the console log
+        const router = (
+            <Provider store={store}> // wrap entire router in provider
+                <Router history={history}> // use history from store
+                    <Route path="/" component={Main}>
+                        <IndexRoute component={PhotoGrid} />
+                        <Route path="/view/:postId" component={Single} />
+                    </Route>
+                </Router>
+            </Provider>
+        );
 
 09 - Understanding The Reducer's Job and Dispatching Actions.mp4
-
+    Go to react dev tools, select provider
+    Go to console, run $r.store.dispatch({type: 'INCREMENT_LIKES', index: 0});
+    See that posts and comments actions both ran
+    Turns out Redux runs all actions, it's up to the reducer to decide if it executes
+    That's where we're going to write a switch to handle all action types
 
 10 - Accessing Dispatch and State with Redux.mp4
-
+    How do we get our state to go into Main?
+        Regular React passes it down every single level through props
+        Redux lets us use connect, which allows us to inject that data at whatever level we actually need it
+        Going to connect data to component we need and make the action creators.
+        Can add infuse presentational component with action creators and data by kind of sprinkling another component on top.
 
 11 - Displaying Redux State inside our Components.mp4
 
