@@ -4,8 +4,8 @@
         React Dev Tools
         Redux Dev Tools
         Terminal (iTerm2)
+        npm install
     Download source repo and run npm i
-    Start with `npm start`
 
 02 - App Layout + Component Setup.mp4
     client folder contains app, starting in reduxtagram.js
@@ -20,21 +20,156 @@
 
         render(<p>Hi</p>, document.getElementById("root"));
     Create other components
-        main>photo grid, single
+        main
+            Inside of that, chooses if it shows photo grid or single
+        Each component lives in its own JS file in the components directory
+        client/components/Main.js
+            import React from "react";
+            import { Link } from "react-router"; // make router links
+
+            class Main extends React.Component {
+                render() {
+                    return (
+                        <div>
+                            <h1>
+                                <Link to="/">Reduxtagram</Link>
+                            </h1>
+                        </div>
+                    );
+                }
+            }
+
+            export default Main;
+        client/reduxtagram.js
+            ...
+            // Import Components
+            import Main from "./components/Main";
+            ...
+            render(<Main />, document.getElementById("root"));
 
 03 - Creating our Single and PhotoGrid components.mp4
+    client/components/Single.js
+        // Paste in main, pretty much the same setup
+        import React from "react";
 
+        class Single extends React.Component {
+            render() {
+                return <div className="single-photo" />;
+            }
+        }
+
+        export default Single;
+    client/components/PhotoGrid.js
+        import React from "react";
+
+        class PhotoGrid extends React.Component {
+            render() {
+                return <div className="photo-grid">I'm the photo grid</div>;
+            }
+        }
+
+        export default PhotoGrid;
+    Routing
+        Actual switching out will be handled by react router, usually {this.props.children} ==> handled by react-router, but can't hand down props in that way
+        Going to use {React.cloneElement(this.props.children, this.props)} in Main.js under h1
+        Doesn't work without children
+        Set up router, which will pass it children
 
 04 - Setting up React Router.mp4
+    client/reduxtagram.js
+        ...
+        // Import Components
+        import Main from "./components/Main";
+        import Single from "./components/Single"; // import other components
+        import PhotoGrid from "./components/PhotoGrid";
 
+        // import react router dependencies
+        import { Router, Route, IndexRoute, browserHistory } from "react-router";
+
+        const router = ( // build router with children
+            <Router history={browserHistory}>
+                <Route path="/" component={Main}> // import main at root
+                    <IndexRoute component={PhotoGrid} /> // PhotoGrid when index
+                    <Route path="/view/:postId" component={Single} /> // Single when
+                </Route>
+            </Router>
+        );
+
+        render(router, document.getElementById("root"));
 
 05 - Creating our Redux Store.mp4
+    First video to talk about Redux instead of just React
+    All data for our app is in a store, rather than a state
+    Not many components with many states, just one object with store.
+    client/store.js
+        import { createStore, compose } from "redux";
+        import { syncHistoryWithStore } from "react-router-redux";
+        import { browserHistory } from "react-router";
 
+        // import the root reducer
+        // will look at actions, what they do, and reducers
+        import rootReducer from "./reducers/index";
+
+        // sample data
+        import comments from "./data/comments";
+        import posts from "./data/posts";
+
+        // Create an object for the default data.
+        const defaultState = {
+            posts,
+            comments
+        };
+
+        // Create the store
+        const store = createStore(rootReducer, defaultState);
+
+        // Export history, then default export store
+        export const history = syncHistoryWithStore(browserHistory, store);
+
+        export default store;
 
 06 - All About Redux Actions.mp4
+    All about actions and action creators
+    Action is something that happens in your app - click on a photo, likes a page, leaves a comment, etc.
+    Whenever something happens, it dispatches an action, with 2 pieces of info
+        1) Name of the action
+        2) Payload of data required to execute action
+    Reducers go in the opposite reaction - once you add the action, how do we actually update the data and let React handle the changes?
+    client/actions/actionCreators.js
+        // can be separate files, but don't have to be
+        // incremement likes
+        function increment(index) {
+            return {
+                type: "INCREMENT_LIKES",
+                index
+            };
+        }
 
+        // add comment
+        function addComment(postId, author, comment) {
+            return {
+                type: "ADD_COMMENT",
+                postID,
+                author,
+                comment
+            };
+        }
+
+        // remove comment
+        function removeComment(postId, i) {
+            return {
+                type: "REMOVE_COMMENT",
+                i,
+                postId
+            };
+        }
+        // How do we do anything with that data when the action is dispatched?
+        // With reducers.
 
 07 - All About Redux Reducers.mp4
+    Need to use reducers to actually update the state
+    In browser, we can listen for events like click and hover
+    We create reducers to listen for our action events
 
 
 08 - Integrating our Store with React Router.mp4
