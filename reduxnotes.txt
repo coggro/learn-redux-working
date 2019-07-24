@@ -227,6 +227,43 @@
         Redux lets us use connect, which allows us to inject that data at whatever level we actually need it
         Going to connect data to component we need and make the action creators.
         Can add infuse presentational component with action creators and data by kind of sprinkling another component on top.
+    client/components/App.js
+        import { bindActionCreators } from "redux"; // gets us the action creators on the component
+        import { connect } from "react-redux"; // bypasses prop passing
+        import * as actionCreators from "../actions/actionCreators"; // Gets us action creators as a variable
+        import Main from "./Main"; // gets us main component
+
+        function mapStateToProps(state) { // puts the parts of state we want in
+            return {                      // an object
+                posts: state.posts,
+                comments: state.comments
+            };
+        }
+
+        function mapDispatchToProps(dispatch) { // maps dispatch to something?
+            return bindActionCreators(actionCreators, dispatch);
+        }
+
+        const App = connect( // app connects with state and dispatch to wrap
+            mapStateToProps, // around Main, making action creators props of
+            mapDispatchToProps  // Main
+        )(Main);
+
+        export default App;
+    client/reduxtagram.js
+        ...
+        import App from "./components/App";
+        ...
+        const router = (
+            <Provider store={store}>
+                <Router history={history}>
+                    <Route path="/" component={App}>
+                        <IndexRoute component={PhotoGrid} />
+                        <Route path="/view/:postId" component={Single} />
+                    </Route>
+                </Router>
+            </Provider>
+        );
 
 11 - Displaying Redux State inside our Components.mp4
 
