@@ -266,15 +266,206 @@
         );
 
 11 - Displaying Redux State inside our Components.mp4
+    client/components/Photo.js
+        import React from "react";
 
+        import { Link } from "react-router";
+
+        import CSSTransitionGroup from "react-addons-css-transition-group";
+
+        class Photo extends React.Component {
+            render() {
+                const { post, i, comments } = this.props; // make props vars
+                return (                // available without this.props
+                    <figure className="grid-figure">
+                        <div className="grid-photo-wrap">
+                            // Link lets us link with the router
+                            <Link to={`/view/${post.code}`}>
+                                <img
+                                    src={post.display_src}
+                                    alt={post.caption}
+                                    className="grid-photo"
+                                />
+                            </Link>
+                            <CSSTransitionGroup
+                                transitionName="like"
+                                transitionEnterTimeout={500}
+                                transitionLeaveTimeout={500}
+                            >
+                                <span key={post.likes} className="likes-heart">
+                                    {post.likes}
+                                </span>
+                            </CSSTransitionGroup>
+                        </div>
+                        <figcaption>
+                            <p>{post.caption}</p>
+                            <div className="control-buttons">
+                                <button className="likes">&hearts; {post.likes}</button>
+                                <Link className="button" to={`/view/${post.code}`}>
+                                    <span className="comment-count">
+                                        <span className="speech-bubble" />
+                                        {comments[post.code]
+                                            ? comments[post.code].length
+                                            : 0}
+                                    </span>
+                                </Link>
+                            </div>
+                        </figcaption>
+                    </figure>
+                );
+            }
+        }
+
+        export default Photo;
+
+    client/components/PhotoGrid.js
+        import React from "react";
+
+        import Photo from "./Photo";
+
+        class PhotoGrid extends React.Component {
+            render() {
+                return (
+                    <div className="photo-grid">
+                        // loop over posts to add Photo components
+                        {this.props.posts.map((post, i) => (
+                            // spreads out props, adds key and index value to
+                            // access key in child, and individual post
+                            <Photo {...this.props} key={i} i={i} post={post} />
+                        ))}
+                    </div>
+                );
+            }
+        }
+
+        export default PhotoGrid;
 
 12 - Updating State with Reducers.mp4
+    client/components/Photo.js
+        ...
+        // Emit the increment function event thing on click using bind
+        <button
+            onClick={this.props.increment.bind(null, i)}
+            className="likes"
+        >
+            &hearts; {post.likes}
+        </button>
+        ...
+    Redux and Functional Programming
+        Redux uses functional programming
+        Don't just increment the thing and return it
+        Take a copy, modify it, and return new state
+    Editing reducer
+    client/reducers/posts.js
+        function posts(state = [], action) {
+            // only fire different things based on action type
+            switch (action.type) {
+                // increment likes
+                case "INCREMENT_LIKES":
+                    console.log("Incrementing Likes");
+                    const i = action.index;
+                    return [
+                        ...state.slice(0, i), // before our update
+                        { ...state[i], likes: state[i].likes + 1 }, // modify likes
+                        ...state.slice(i + 1) // after our update
+                    ];
+                default:
+                    return state;
+            }
+        }
 
+        export default posts;
 
 13 - Displaying the Single Photo Component.mp4
+    Create single layout view, Single.js
+    client/components/Single.js
+        import React from "react";
+
+        import Photo from "./Photo"; // re-use Photo
+        import Comments from "./Comments"; // New component to handle comments
+
+        class Single extends React.Component {
+            render() {
+                // index of the post
+                const i = this.props.posts.findIndex(
+                    post => post.code === this.props.params.postId
+                );
+                // get us the post
+                const post = this.props.posts[i];
+                return (
+                    <div className="single-photo">
+                        <Photo i={i} post={post} {...this.props} />
+                        <Comments />
+                    </div>
+                );
+            }
+        }
+
+        export default Single;
+    client/components/Comments.js
+        import React from "react";
+
+        class Comments extends React.Component {
+            render() {
+                return <div className="comment">I'm the comments!</div>;
+            }
+        }
+
+        export default Comments;
 
 
 14 - Displaying and Adding Comments.mp4
+    Tackle displaying comments in two parts:
+        Get existing comments displaying
+        Then add/delete
+    Since we have them in props, we can use it from Single
+    client/components/Single.js
+        ...
+        // Refactored out because it's used in multiple spots
+        const { postId } = this.props.params;
+        ...
+        // gets us an array of comments on the post
+        const postComments = this.props.comments[postId] || [];
+
+        return (
+            <div className="single-photo">
+                ...
+                <Comments postComments={postComments} />
+            </div>
+        );
+    client/components/Comments.js
+        import React from "react";
+
+        class Comments extends React.Component {
+            // render function over creating another component
+            renderComment(comment, i) {
+                return (
+                    <div className="comment" key={i}>
+                        <p>
+                            <strong>{comment.user}</strong>
+                            {comment.text}
+                            <button className="remove-comment">&times;</button>
+                        </p>
+                    </div>
+                );
+            }
+            render() {
+                return (
+                    <div className="comments">
+                        // render out comments
+                        {this.props.postComments.map(this.renderComment)}
+                        // create form for new comments
+                        <form ref="commentForm" className="comment-form">
+                            <input type="text" ref="author" placeholder="Author" />
+                            <input type="text" ref="comment" placeholder="Comment" />
+                            <input type="submit" hidden />
+                        </form>
+                    </div>
+                );
+            }
+        }
+
+        export default Comments;
 
 
 15 - Updating Comment State in our Store.mp4

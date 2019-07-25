@@ -7,9 +7,18 @@
 // return updated copy of store
 
 function posts(state = [], action) {
-    console.log("The post will change");
-    console.log(state, action);
-    return state;
+    switch (action.type) {
+        case "INCREMENT_LIKES":
+            console.log("Incrementing Likes");
+            const i = action.index;
+            return [
+                ...state.slice(0, i), // before our update
+                { ...state[i], likes: state[i].likes + 1 }, // modify likes
+                ...state.slice(i + 1) // after our update
+            ];
+        default:
+            return state;
+    }
 }
 
 export default posts;
