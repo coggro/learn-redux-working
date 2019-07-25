@@ -8,7 +8,9 @@ class Single extends React.Component {
         // Refactored out because it's used in multiple spots
         const { postId } = this.props.params;
         // index of the post
-        const i = this.props.posts.findIndex(post => post.code === postId);
+        const i = this.props.posts.findIndex(post => {
+            return post.code === postId;
+        });
         // get us the post
         const post = this.props.posts[i];
         // gets us an array of comments on the post
@@ -17,7 +19,7 @@ class Single extends React.Component {
         return (
             <div className="single-photo">
                 <Photo i={i} post={post} {...this.props} />
-                <Comments postComments={postComments} />
+                <Comments postComments={postComments} {...this.props} />
             </div>
         );
     }
