@@ -469,6 +469,47 @@
 
 
 15 - Updating Comment State in our Store.mp4
+    Hooking up a submit handler
+    client/components/Comments.js
+        import React from "react";
+
+        class Comments extends React.Component {
+            renderComment(comment, i) {
+                return (
+                    <div className="comment" key={i}>
+                        <p>
+                            <strong>{comment.user}</strong>
+                            {comment.text}
+                            <button className="remove-comment">&times;</button>
+                        </p>
+                    </div>
+                );
+            }
+            handleSubmit(e) {
+                e.preventDefault();
+                console.log("submitting the form");
+                console.log(this.refs);
+            }
+            render() {
+                return (
+                    <div className="comments">
+                        {this.props.postComments.map(this.renderComment)}
+                        <form
+                            ref="commentForm"
+                            className="comment-form"
+                            onSubmit={this.handleSubmit}
+                        >
+                            <input type="text" ref="author" placeholder="Author" />
+                            <input type="text" ref="comment" placeholder="Comment" />
+                            <input type="submit" hidden />
+                        </form>
+                    </div>
+                );
+            }
+        }
+
+        export default Comments;
+
 
 
 16 - Redux Reducer Composition.mp4
