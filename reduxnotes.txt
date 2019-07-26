@@ -508,15 +508,160 @@
         export default Comments;
 
 16 - Redux Reducer Composition.mp4
+    Just like we split state into two pieces (posts, comments), we can create an additional reducer for a single comment.
+    This is called reducer composition.
+    Updates just one slice of state
+    client/reducers/comments.js
+        ...
+        // updates single comment
+        function postComments(state = [], action) {
+            switch (action.type) {
+                // add a comment by returning the existing state along with an
+                // extra (new) comment
+                case "ADD_COMMENT":
+                    return [
+                        ...state,
+                        {
+                            user: action.author,
+                            text: action.comment
+                        }
+                    ];
+                // slice array around comment we don't want
+                case "REMOVE_COMMENT":
+                    return [...state.slice(0, action.i), ...state.slice(action.i + 1)];
+                default:
+                    return state;
+            }
+            return state;
+        }
 
+        function comments(state = [], action) {
+            // console.log(state, action);
+            // If this reducer needs to run (a post exists in the action)
+            if (typeof action.postId !== "undefined") {
+                return {
+                    // take current state
+                    ...state,
+                    //overwrite this post with a new one
+                    [action.postId]: postComments(state[action.postId], action)
+                };
+            }
+            return state;
+        }
+
+        export default comments;
+    client/components/Comments.js
+        ...
+            renderComment(comment, i) {
+                ...
+                            // hook up the event on the button
+                            <button
+                                className="remove-comment"
+                                onClick={this.props.removeComment.bind(
+                                    null,
+                                    this.props.params.postId,
+                                    i
+                                )}
+                            >
+                ...
+            },
+            handleSubmit(e) {
+                ...
+                // Clear the form after use
+                this.refs.commentForm.reset();
+            }
+            ...
 
 17 - Error Tracking and Insights with Sentry.mp4
+    Sentry gives error tracking on client side
+    /client/data/config.js
+        // Comes in source code
+        import Raven from 'raven-js';
 
+        const sentry_key = 'cb55d4f05cd443ce82303222f77ef5e0';
+        const sentry_app = '61499';
+        export const sentry_url = `https://${sentry_key}@app.getsentry.com/${sentry_app}`;
+
+        export function logException(ex, context) {
+        Raven.captureException(ex, {
+            extra: context
+        });
+        /*eslint no-console:0*/
+        window && window.console && console.error && console.error(ex);
+        }
+    /client/reduxtagram.js
+        ...
+        import Raven from 'raven-js';
+        import {sentry_url} from './data/config';
+
+        // Set up Sentry
+        Raven.config(sentry_url).install();
+        // Configure Sentry with custom tags
+        Raven.config(sentry_url, {
+            tags: {
+                git_commit: "something",
+                userLevel: "editor"
+            }
+        }).install();
+
+        // Log an error to Sentry
+        logException(
+            new Error("download failed!", {
+                email: "wesbos@gmail.com"
+            })
+        );
+
+        // Capture a message
+        Raven.captureMessage("Something bad happened!");
+
+        // Show a Sentry bug report dialog
+        Raven.showReportDialog();
 
 18 - Hot Reloading Redux Reducers with webpack.mp4
-
+    Remove warning for hot reload, hot reload reducers
+    /client/store.js
+        // check if the module is hot
+        if (module.hot) {
+            // then, accept it, and write a function to re-require and swap it
+            // out
+            module.hot.accept("./reducers/", () => {
+                // use require because can't use import inside a function
+                // reload entire reducer and replace it in the store
+                const nextRootReducer = require("./reducers/index").default;
+                store.replaceReducer(nextRootReducer);
+            });
+        }
 
 19 - Learning Redux Dev Tools.mp4
-
+    Redux dev tools let you cancel out or replay actions on the stack
+    Enhance the store to use in dev tools
+    client/store.js
+        Set up enhancer devToolsExtension, if it exists
+        const enhancers = compose(
+            window.devToolsExtension ? window.devToolsExtension() : f => f
+        );
+        // add enhancers to store
+        const store = createStore(rootReducer, defaultState, enhancers);
+    Actions
+        Sweep
+            Removes any disabled actions from the log, as if they never happened
+        Commit
+            Like git commit, removes actions from the log and makes current state initial state
+        Revert
+            Reverts anything since last commit
+        Reset
+            Removes all actions as loaded, including commits
 
 20 - Wrap Up and Next Steps.mp4
+    Quick Review
+        One giant store, not a bunch of different states
+        Update that store with actions - what happened and payload of info
+        Update state with reducers - handle the info based on action
+    What's next to learn?
+        Obviously, data is from a file. Figure out how to work with external APIs
+            redux-thunk
+            redux-saga
+                Async calls, fire accent with data that comes back from API
+            normalizr
+                Good for nested data
+        One or two steps further on this app
